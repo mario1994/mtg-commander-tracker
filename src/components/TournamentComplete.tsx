@@ -17,6 +17,7 @@ export default function TournamentComplete() {
               <th>Rank</th>
               <th>Player</th>
               <th>Points</th>
+              <th title="Opponent Match Win %">OMW%</th>
             </tr>
           </thead>
           <tbody>
@@ -25,6 +26,9 @@ export default function TournamentComplete() {
                 <td>{index + 1}</td>
                 <td>{entry.nickname}</td>
                 <td>{entry.totalPoints}</td>
+                <td title={`SoS (Buchholz): ${entry.buchholz}`}>
+                  {Math.round(entry.omw * 100)}%
+                </td>
               </tr>
             ))}
           </tbody>

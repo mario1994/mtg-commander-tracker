@@ -23,6 +23,8 @@ export interface StandingEntry {
   playerId: string;
   nickname: string;
   totalPoints: number;
+  buchholz: number;
+  omw: number;
 }
 
 export interface TournamentState {

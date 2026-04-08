@@ -19,6 +19,7 @@ export default function Standings() {
               <th>#</th>
               <th>Player</th>
               <th>Pts</th>
+              <th title="Opponent Match Win %">OMW%</th>
             </tr>
           </thead>
           <tbody>
@@ -27,6 +28,9 @@ export default function Standings() {
                 <td>{index + 1}</td>
                 <td>{entry.nickname}</td>
                 <td>{entry.totalPoints}</td>
+                <td title={`SoS (Buchholz): ${entry.buchholz}`}>
+                  {Math.round(entry.omw * 100)}%
+                </td>
               </tr>
             ))}
           </tbody>
