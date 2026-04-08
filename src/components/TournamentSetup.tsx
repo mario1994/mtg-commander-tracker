@@ -1,0 +1,51 @@
+import { useTournament } from '../context/TournamentContext';
+import { UNSUPPORTED_COUNTS, MIN_PLAYERS } from '../constants';
+import PlayerInput from './PlayerInput';
+import PlayerList from './PlayerList';
+
+export default function TournamentSetup() {
+  const { state, dispatch } = useTournament();
+  const playerCount = state.players.length;
+  const canStart = playerCount >= MIN_PLAYERS && !UNSUPPORTED_COUNTS.includes(playerCount) && state.totalRounds >= 1;
+
+  const getValidationMessage = () => {
+    if (playerCount < MIN_PLAYERS) return `Need at least ${MIN_PLAYERS} players to start.`;
+    if (UNSUPPORTED_COUNTS.includes(playerCount)) return `${playerCount} players is not supported (cannot form valid groups). Add or remove a player.`;
+    return null;
+  };
+
+  const validationMsg = getValidationMessage();
+
+  return (
+    <div className="setup-container">
+      <h1>Commander Tournament</h1>
+      <p className="subtitle">Magic: The Gathering</p>
+
+      <section className="setup-section">
+        <h2>Players ({playerCount})</h2>
+        <PlayerInput />
+        <PlayerList />
+        {validationMsg && <p className="validation-msg">{validationMsg}</p>}
+      </section>
+
+      <section className="setup-section">
+        <h2>Rounds</h2>
+        <div className="rounds-config">
+          <label htmlFor="rounds">Number of rounds:</label>
+          <input
+            id="rounds"
+            type="number"
+            min={1}
+            max={10}
+            value={state.totalRounds}
+            onChange={e => dispatch({ type: 'SET_ROUNDS', totalRounds: Math.max(1, parseInt(e.target.value) || 1) })}
+          />
+        </div>
+      </section>
+
+      <button className="btn-primary btn-start" onClick={() => dispatch({ type: 'START_TOURNAMENT' })} disabled={!canStart}>
+        Start Tournament
+      </button>
+    </div>
+  );
+}
