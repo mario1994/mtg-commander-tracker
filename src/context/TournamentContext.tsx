@@ -130,7 +130,7 @@ export function TournamentProvider({ children }: { children: ReactNode }) {
       try {
         const parsed = JSON.parse(saved) as TournamentState;
         // Migrate old saves: default active=true for players missing the field
-        parsed.players = parsed.players.map(p => ({ active: true, ...p }));
+        parsed.players = parsed.players.map(p => ({ ...p, active: p.active ?? true }));
         return parsed;
       } catch {
         return initialState;
