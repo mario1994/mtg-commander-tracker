@@ -343,6 +343,46 @@ select:focus {
   text-align: right;
 }
 
+/* Player inactive styling */
+.player-inactive td {
+  opacity: 0.4;
+}
+
+.player-inactive .toggle-active {
+  opacity: 1;
+}
+
+.toggle-active {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.toggle-active:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.toggle-active:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.toggle-active.inactive {
+  color: var(--success);
+  border-color: var(--success);
+  opacity: 0.8;
+}
+
+.toggle-active.inactive:hover {
+  opacity: 1;
+}
+
 /* Tournament Complete */
 .complete-container {
   text-align: center;

@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useReducer, type ReactNode } from 'react';
 import { STORAGE_KEY } from '../constants';
 import type { TournamentAction, TournamentState } from '../types';
-import { createGroups } from '../utils/grouping';
+import { canFormValidGroups, createGroups } from '../utils/grouping';
 import { calculateStandings } from '../utils/scoring';
 
 const initialState: TournamentState = {
@@ -17,7 +17,7 @@ function reducer(state: TournamentState, action: TournamentAction): TournamentSt
     case 'ADD_PLAYER':
       return {
         ...state,
-        players: [...state.players, { id: crypto.randomUUID(), nickname: action.nickname }],
+        players: [...state.players, { id: crypto.randomUUID(), nickname: action.nickname, active: true }],
       };
 
     case 'EDIT_PLAYER':
@@ -35,8 +35,24 @@ function reducer(state: TournamentState, action: TournamentAction): TournamentSt
     case 'SET_ROUNDS':
       return { ...state, totalRounds: action.totalRounds };
 
+    case 'TOGGLE_PLAYER_ACTIVE': {
+      const player = state.players.find(p => p.id === action.playerId);
+      if (!player) return state;
+      // If deactivating, check remaining active count is valid
+      if (player.active) {
+        const remainingActive = state.players.filter(p => p.active && p.id !== action.playerId).length;
+        if (!canFormValidGroups(remainingActive)) return state;
+      }
+      return {
+        ...state,
+        players: state.players.map(p =>
+          p.id === action.playerId ? { ...p, active: !p.active } : p
+        ),
+      };
+    }
+
     case 'START_TOURNAMENT': {
-      const playerIds = state.players.map(p => p.id);
+      const playerIds = state.players.filter(p => p.active).map(p => p.id);
       const tables = createGroups(playerIds, 'random');
       return {
         ...state,
@@ -72,7 +88,7 @@ function reducer(state: TournamentState, action: TournamentAction): TournamentSt
       );
 
       const standings = calculateStandings(completedRounds, state.players);
-      const playerIds = state.players.map(p => p.id);
+      const playerIds = state.players.filter(p => p.active).map(p => p.id);
       const nextRoundNum = state.currentRound + 1;
       const tables = createGroups(playerIds, 'swiss', standings);
 
@@ -112,7 +128,10 @@ export function TournamentProvider({ children }: { children: ReactNode }) {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       try {
-        return JSON.parse(saved) as TournamentState;
+        const parsed = JSON.parse(saved) as TournamentState;
+        // Migrate old saves: default active=true for players missing the field
+        parsed.players = parsed.players.map(p => ({ active: true, ...p }));
+        return parsed;
       } catch {
         return initialState;
       }

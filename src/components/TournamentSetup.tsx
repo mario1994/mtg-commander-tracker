@@ -1,16 +1,15 @@
 import { useTournament } from '../context/TournamentContext';
-import { UNSUPPORTED_COUNTS, MIN_PLAYERS } from '../constants';
+import { MIN_PLAYERS } from '../constants';
 import PlayerInput from './PlayerInput';
 import PlayerList from './PlayerList';
 
 export default function TournamentSetup() {
   const { state, dispatch } = useTournament();
   const playerCount = state.players.length;
-  const canStart = playerCount >= MIN_PLAYERS && !UNSUPPORTED_COUNTS.includes(playerCount) && state.totalRounds >= 1;
+  const canStart = playerCount >= MIN_PLAYERS && state.totalRounds >= 1;
 
   const getValidationMessage = () => {
     if (playerCount < MIN_PLAYERS) return `Need at least ${MIN_PLAYERS} players to start.`;
-    if (UNSUPPORTED_COUNTS.includes(playerCount)) return `${playerCount} players is not supported (cannot form valid groups). Add or remove a player.`;
     return null;
   };
 

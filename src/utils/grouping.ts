@@ -17,8 +17,8 @@ export function computeGroupSizes(playerCount: number): number[] {
     case 0:
       return Array(k).fill(4);
     case 1:
-      // (k-2) groups of 4 + 3 groups of 3
-      return [...Array(Math.max(0, k - 2)).fill(4), ...Array(3).fill(3)];
+      // (k-1) groups of 4 + 1 group of 5
+      return [...Array(Math.max(0, k - 1)).fill(4), 5];
     case 2:
       // (k-1) groups of 4 + 2 groups of 3
       return [...Array(Math.max(0, k - 1)).fill(4), ...Array(2).fill(3)];
@@ -28,6 +28,10 @@ export function computeGroupSizes(playerCount: number): number[] {
     default:
       return [];
   }
+}
+
+export function canFormValidGroups(count: number): boolean {
+  return count >= 3;
 }
 
 export function createGroups(

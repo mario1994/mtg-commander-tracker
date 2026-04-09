@@ -5,6 +5,9 @@ export default function TournamentComplete() {
   const { state, dispatch } = useTournament();
   const standings = calculateStandings(state.rounds, state.players);
 
+  const getPlayerActive = (playerId: string) =>
+    state.players.find(p => p.id === playerId)?.active ?? true;
+
   return (
     <div className="complete-container">
       <h1>Tournament Complete!</h1>
@@ -21,16 +24,22 @@ export default function TournamentComplete() {
             </tr>
           </thead>
           <tbody>
-            {standings.map((entry, index) => (
-              <tr key={entry.playerId} className={index < 3 ? `rank-${index + 1}` : ''}>
-                <td>{index + 1}</td>
-                <td>{entry.nickname}</td>
-                <td>{entry.totalPoints}</td>
-                <td title={`SoS (Buchholz): ${entry.buchholz}`}>
-                  {Math.round(entry.omw * 100)}%
-                </td>
-              </tr>
-            ))}
+            {standings.map((entry, index) => {
+              const active = getPlayerActive(entry.playerId);
+              return (
+                <tr
+                  key={entry.playerId}
+                  className={`${index < 3 ? `rank-${index + 1}` : ''} ${active ? '' : 'player-inactive'}`}
+                >
+                  <td>{index + 1}</td>
+                  <td>{entry.nickname}</td>
+                  <td>{entry.totalPoints}</td>
+                  <td title={`SoS (Buchholz): ${entry.buchholz}`}>
+                    {Math.round(entry.omw * 100)}%
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
