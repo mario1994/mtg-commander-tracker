@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useTournament } from './context/TournamentContext';
 import TournamentSetup from './components/TournamentSetup';
 import RoundView from './components/RoundView';
@@ -7,6 +8,9 @@ import './styles/index.css';
 
 function AppContent() {
   const { state } = useTournament();
+  const [viewingRoundIndex, setViewingRoundIndex] = useState(
+    Math.max(0, state.currentRound - 1)
+  );
 
   switch (state.phase) {
     case 'setup':
@@ -14,8 +18,14 @@ function AppContent() {
     case 'playing':
       return (
         <div className="playing-layout">
-          <RoundView />
-          <Standings />
+          <RoundView
+            viewingRoundIndex={viewingRoundIndex}
+            setViewingRoundIndex={setViewingRoundIndex}
+          />
+          <Standings
+            viewingRoundIndex={viewingRoundIndex}
+            setViewingRoundIndex={setViewingRoundIndex}
+          />
         </div>
       );
     case 'complete':

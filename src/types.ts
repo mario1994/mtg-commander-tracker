@@ -45,6 +45,6 @@ export type TournamentAction =
   | { type: 'SET_POSITION'; roundIndex: number; tableId: string; playerId: string; position: number | null }
   | { type: 'NEXT_ROUND' }
   | { type: 'COMPLETE_TOURNAMENT' }
-  | { type: 'TOGGLE_PLAYER_ACTIVE'; playerId: string }
+  | { type: 'TOGGLE_PLAYER_ACTIVE'; playerId: string; regenerateFromRoundIndex?: number }
   | { type: 'RESET_TOURNAMENT' }
   | { type: 'LOAD_STATE'; state: TournamentState };

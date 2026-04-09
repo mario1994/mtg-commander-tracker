@@ -1,11 +1,14 @@
-import { useState } from 'react';
 import { useTournament } from '../context/TournamentContext';
 import TableCard from './TableCard';
 
-export default function RoundView() {
+interface Props {
+  viewingRoundIndex: number;
+  setViewingRoundIndex: (index: number) => void;
+}
+
+export default function RoundView({ viewingRoundIndex, setViewingRoundIndex }: Props) {
   const { state, dispatch } = useTournament();
   const latestRoundIndex = state.currentRound - 1;
-  const [viewingRoundIndex, setViewingRoundIndex] = useState(latestRoundIndex);
 
   const viewingRound = state.rounds[viewingRoundIndex];
   const isViewingLatest = viewingRoundIndex === latestRoundIndex;
@@ -30,7 +33,7 @@ export default function RoundView() {
         <div className="round-nav">
           <button
             className="round-nav-btn"
-            onClick={() => setViewingRoundIndex(i => i - 1)}
+            onClick={() => setViewingRoundIndex(viewingRoundIndex - 1)}
             disabled={viewingRoundIndex === 0}
             title="Previous round"
           >
@@ -42,7 +45,7 @@ export default function RoundView() {
           </h2>
           <button
             className="round-nav-btn"
-            onClick={() => setViewingRoundIndex(i => i + 1)}
+            onClick={() => setViewingRoundIndex(viewingRoundIndex + 1)}
             disabled={viewingRoundIndex === latestRoundIndex}
             title="Next round"
           >

@@ -2,9 +2,16 @@ import { useTournament } from '../context/TournamentContext';
 import { canFormValidGroups } from '../utils/grouping';
 import { calculateStandings } from '../utils/scoring';
 
-export default function Standings() {
+interface Props {
+  viewingRoundIndex: number;
+  setViewingRoundIndex: (index: number) => void;
+}
+
+export default function Standings({ viewingRoundIndex, setViewingRoundIndex }: Props) {
   const { state, dispatch } = useTournament();
   const isPlaying = state.phase === 'playing';
+  const latestRoundIndex = state.currentRound - 1;
+  const isViewingPastRound = viewingRoundIndex < latestRoundIndex;
 
   const completedRounds = state.rounds.filter(r => r.completed);
   const standings = calculateStandings(completedRounds, state.players);
@@ -18,6 +25,22 @@ export default function Standings() {
     const player = state.players.find(p => p.id === playerId);
     if (!player?.active) return true; // can always reactivate
     return canFormValidGroups(activeCount - 1);
+  };
+
+  const handleToggle = (playerId: string) => {
+    if (isViewingPastRound) {
+      const player = state.players.find(p => p.id === playerId);
+      const isDeactivating = player?.active ?? false;
+      const verb = isDeactivating ? 'excluded from' : 'included in';
+      const ok = window.confirm(
+        `This will regenerate round ${viewingRoundIndex + 2} onward with this player ${verb} the lineup. Continue?`
+      );
+      if (!ok) return;
+      dispatch({ type: 'TOGGLE_PLAYER_ACTIVE', playerId, regenerateFromRoundIndex: viewingRoundIndex });
+      setViewingRoundIndex(viewingRoundIndex + 1);
+    } else {
+      dispatch({ type: 'TOGGLE_PLAYER_ACTIVE', playerId });
+    }
   };
 
   return (
@@ -51,9 +74,17 @@ export default function Standings() {
                     <td>
                       <button
                         className={`toggle-active ${active ? 'active' : 'inactive'}`}
-                        onClick={() => dispatch({ type: 'TOGGLE_PLAYER_ACTIVE', playerId: entry.playerId })}
+                        onClick={() => handleToggle(entry.playerId)}
                         disabled={active && !canDeactivate(entry.playerId)}
-                        title={active ? 'Deactivate player' : 'Reactivate player'}
+                        title={
+                          isViewingPastRound
+                            ? active
+                              ? 'Deactivate & regenerate next rounds'
+                              : 'Reactivate & regenerate next rounds'
+                            : active
+                              ? 'Deactivate player'
+                              : 'Reactivate player'
+                        }
                       >
                         {active ? '✕' : '↩'}
                       </button>
@@ -64,6 +95,11 @@ export default function Standings() {
             })}
           </tbody>
         </table>
+      )}
+      {isPlaying && isViewingPastRound && (
+        <p className="standings-regen-hint">
+          Toggling a player here will regenerate subsequent rounds.
+        </p>
       )}
     </aside>
   );

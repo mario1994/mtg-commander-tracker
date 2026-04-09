@@ -43,12 +43,30 @@ function reducer(state: TournamentState, action: TournamentAction): TournamentSt
         const remainingActive = state.players.filter(p => p.active && p.id !== action.playerId).length;
         if (!canFormValidGroups(remainingActive)) return state;
       }
-      return {
-        ...state,
-        players: state.players.map(p =>
-          p.id === action.playerId ? { ...p, active: !p.active } : p
-        ),
-      };
+
+      const newPlayers = state.players.map(p =>
+        p.id === action.playerId ? { ...p, active: !p.active } : p
+      );
+
+      // If regeneration requested: keep rounds up to viewedRound, regenerate the next one
+      if (action.regenerateFromRoundIndex !== undefined) {
+        const ri = action.regenerateFromRoundIndex;
+        const keptRounds = state.rounds.slice(0, ri + 1);
+        const completedKept = keptRounds.filter(r => r.completed);
+        const standingsForNext = calculateStandings(completedKept, newPlayers);
+        const activePlayerIds = newPlayers.filter(p => p.active).map(p => p.id);
+        const nextRoundNum = ri + 2; // rounds are 1-based
+        const newTables = createGroups(activePlayerIds, 'swiss', standingsForNext);
+        const nextRound = { roundNumber: nextRoundNum, tables: newTables, completed: false };
+        return {
+          ...state,
+          players: newPlayers,
+          rounds: [...keptRounds, nextRound],
+          currentRound: nextRoundNum,
+        };
+      }
+
+      return { ...state, players: newPlayers };
     }
 
     case 'START_TOURNAMENT': {

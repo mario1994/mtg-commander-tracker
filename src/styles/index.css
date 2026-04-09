@@ -353,6 +353,14 @@ select:focus {
   font-style: italic;
 }
 
+.standings-regen-hint {
+  margin-top: 0.75rem;
+  font-size: 0.75rem;
+  color: var(--accent);
+  font-style: italic;
+  opacity: 0.85;
+}
+
 .standings-table {
   width: 100%;
   border-collapse: collapse;
