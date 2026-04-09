@@ -1,8 +1,9 @@
-import { POINTS } from '../constants';
+import { POINTS, POINTS_5 } from '../constants';
 import type { GameTable, Player, Round, StandingEntry } from '../types';
 
 export function calculateTablePoints(table: GameTable): Map<string, number> {
   const results = new Map<string, number>();
+  const pointScale = table.players.length === 5 ? POINTS_5 : POINTS;
 
   const byPosition = new Map<number, string[]>();
   for (const p of table.players) {
@@ -19,7 +20,7 @@ export function calculateTablePoints(table: GameTable): Map<string, number> {
     const count = tiedPlayers.length;
     let totalPts = 0;
     for (let i = 0; i < count; i++) {
-      totalPts += POINTS[slotIndex + i] ?? 0;
+      totalPts += pointScale[slotIndex + i] ?? 0;
     }
     const splitPts = totalPts / count;
     for (const pid of tiedPlayers) {
