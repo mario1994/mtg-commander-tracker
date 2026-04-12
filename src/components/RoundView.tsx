@@ -85,6 +85,17 @@ export default function RoundView({ viewingRoundIndex, setViewingRoundIndex }: P
           {isLastRound ? 'Finish Tournament' : 'Next Round'}
         </button>
       )}
+
+      <button
+        className="btn-danger-outline btn-reset-tournament"
+        onClick={() => {
+          if (window.confirm('Are you sure you want to reset the tournament? All progress will be lost.')) {
+            dispatch({ type: 'RESET_TOURNAMENT' });
+          }
+        }}
+      >
+        Reset Tournament
+      </button>
     </div>
   );
 }

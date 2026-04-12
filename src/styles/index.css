@@ -622,6 +622,27 @@ select:focus {
   font-size: 1rem;
 }
 
+.btn-danger-outline {
+  background: transparent;
+  border: 1px solid var(--danger);
+  color: var(--danger);
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 0.4rem 1rem;
+  opacity: 0.6;
+  transition: opacity 0.2s, background 0.2s;
+}
+
+.btn-danger-outline:hover {
+  opacity: 1;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.btn-reset-tournament {
+  display: block;
+  margin: 2rem auto 0;
+}
+
 /* Standings sidebar */
 .standings-sidebar {
   position: sticky;
