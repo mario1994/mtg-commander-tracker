@@ -28,6 +28,9 @@ export default function PlayerList() {
       {state.players.map((player, index) => (
         <li key={player.id} className="player-item">
           <span className="player-number">{index + 1}.</span>
+          <span className="player-avatar">
+            {player.nickname.charAt(0).toUpperCase()}
+          </span>
           {editingId === player.id ? (
             <input
               type="text"

@@ -64,7 +64,11 @@ export default function Standings({ viewingRoundIndex, setViewingRoundIndex }: P
               const active = getPlayerActive(entry.playerId);
               return (
                 <tr key={entry.playerId} className={active ? '' : 'player-inactive'}>
-                  <td>{index + 1}</td>
+                  <td>
+                    <span className={`rank-badge ${index < 3 ? `rank-${index + 1}` : ''}`}>
+                      {index + 1}
+                    </span>
+                  </td>
                   <td>{entry.nickname}</td>
                   <td>{entry.totalPoints}</td>
                   <td title={`SoS (Buchholz): ${entry.buchholz}`}>
@@ -86,7 +90,7 @@ export default function Standings({ viewingRoundIndex, setViewingRoundIndex }: P
                               : 'Reactivate player'
                         }
                       >
-                        {active ? '✕' : '↩'}
+                        {active ? 'Drop' : 'Add'}
                       </button>
                     </td>
                   )}

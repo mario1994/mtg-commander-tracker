@@ -52,6 +52,16 @@ export default function RoundView({ viewingRoundIndex, setViewingRoundIndex }: P
             &#8250;
           </button>
         </div>
+        <div className="round-progress">
+          {Array.from({ length: state.totalRounds }, (_, i) => (
+            <div
+              key={i}
+              className={`round-progress-step ${
+                i < state.currentRound ? 'completed' : ''
+              } ${i === viewingRoundIndex ? 'active' : ''}`}
+            />
+          ))}
+        </div>
       </div>
 
       <div className="tables-grid">

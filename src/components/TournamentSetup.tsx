@@ -17,18 +17,27 @@ export default function TournamentSetup() {
 
   return (
     <div className="setup-container">
-      <h1>Commander Tournament</h1>
-      <p className="subtitle">Magic: The Gathering</p>
+      <div className="setup-hero">
+        <div className="setup-hero-glow"></div>
+        <h1>Commander Tournament</h1>
+        <p className="subtitle">Magic: The Gathering</p>
+      </div>
 
       <section className="setup-section">
-        <h2>Players ({playerCount})</h2>
+        <div className="section-header">
+          <span className="step-indicator">1</span>
+          <h2>Players ({playerCount})</h2>
+        </div>
         <PlayerInput />
         <PlayerList />
         {validationMsg && <p className="validation-msg">{validationMsg}</p>}
       </section>
 
       <section className="setup-section">
-        <h2>Rounds</h2>
+        <div className="section-header">
+          <span className="step-indicator">2</span>
+          <h2>Rounds</h2>
+        </div>
         <div className="rounds-config">
           <label htmlFor="rounds">Number of rounds:</label>
           <input

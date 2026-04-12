@@ -17,10 +17,16 @@ export default function TableCard({ table, tableIndex, roundIndex, disabled }: P
 
   return (
     <div className="table-card">
-      <h3>Table {tableIndex + 1}</h3>
+      <div className="table-card-header">
+        <span className="table-number-badge">{tableIndex + 1}</span>
+        <h3>Table {tableIndex + 1}</h3>
+      </div>
       <div className="table-players">
         {table.players.map(result => (
-          <div key={result.playerId} className="table-player-row">
+          <div
+            key={result.playerId}
+            className={`table-player-row ${result.position ? `position-${result.position}` : ''}`}
+          >
             <span className="table-player-name">{getPlayerName(result.playerId)}</span>
             <select
               value={result.position ?? ''}
