@@ -28,12 +28,15 @@ export interface StandingEntry {
   omw: number;
 }
 
+export type TablePreference = 'balanced' | 'preferLarger';
+
 export interface TournamentState {
   phase: 'setup' | 'playing' | 'complete';
   players: Player[];
   totalRounds: number;
   currentRound: number;
   rounds: Round[];
+  tablePreference: TablePreference;
 }
 
 export type TournamentAction =
@@ -46,5 +49,6 @@ export type TournamentAction =
   | { type: 'NEXT_ROUND' }
   | { type: 'COMPLETE_TOURNAMENT' }
   | { type: 'TOGGLE_PLAYER_ACTIVE'; playerId: string; regenerateFromRoundIndex?: number }
+  | { type: 'SET_TABLE_PREFERENCE'; preference: TablePreference }
   | { type: 'RESET_TOURNAMENT' }
   | { type: 'LOAD_STATE'; state: TournamentState };

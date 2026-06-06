@@ -1,5 +1,7 @@
 import { useTournament } from '../context/TournamentContext';
 import { MIN_PLAYERS } from '../constants';
+import { computeGroupSizes } from '../utils/grouping';
+import type { TablePreference } from '../types';
 import PlayerInput from './PlayerInput';
 import PlayerList from './PlayerList';
 
@@ -7,6 +9,14 @@ export default function TournamentSetup() {
   const { state, dispatch } = useTournament();
   const playerCount = state.players.length;
   const canStart = playerCount >= MIN_PLAYERS && state.totalRounds >= 1;
+
+  // The layout is "ambiguous" (5+5 vs 4+3+3) only for remainder 2 with >= 2 full tables.
+  const isAmbiguousLayout = playerCount % 4 === 2 && Math.floor(playerCount / 4) >= 2;
+
+  const layoutOptions: { value: TablePreference; label: string; sizes: number[] }[] = [
+    { value: 'balanced', label: 'Balanced', sizes: computeGroupSizes(playerCount, 'balanced') },
+    { value: 'preferLarger', label: 'Bigger pods', sizes: computeGroupSizes(playerCount, 'preferLarger') },
+  ];
 
   const getValidationMessage = () => {
     if (playerCount < MIN_PLAYERS) return `Need at least ${MIN_PLAYERS} players to start.`;
@@ -33,9 +43,39 @@ export default function TournamentSetup() {
         {validationMsg && <p className="validation-msg">{validationMsg}</p>}
       </section>
 
+      {isAmbiguousLayout && (
+        <section className="setup-section">
+          <div className="section-header">
+            <span className="step-indicator">★</span>
+            <h2>Table layout</h2>
+          </div>
+          <p className="layout-hint">
+            With {playerCount} players you can run smaller balanced pods or fewer, larger pods.
+          </p>
+          <div className="table-layout-options">
+            {layoutOptions.map(opt => (
+              <button
+                key={opt.value}
+                type="button"
+                className={`table-layout-option ${state.tablePreference === opt.value ? 'active' : ''}`}
+                onClick={() => dispatch({ type: 'SET_TABLE_PREFERENCE', preference: opt.value })}
+                aria-pressed={state.tablePreference === opt.value}
+              >
+                <span className="table-layout-label">{opt.label}</span>
+                <span className="pod-chips">
+                  {opt.sizes.map((size, i) => (
+                    <span key={i} className="pod-chip">{size}</span>
+                  ))}
+                </span>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
+
       <section className="setup-section">
         <div className="section-header">
-          <span className="step-indicator">2</span>
+          <span className="step-indicator">{isAmbiguousLayout ? '3' : '2'}</span>
           <h2>Rounds</h2>
         </div>
         <div className="rounds-config">

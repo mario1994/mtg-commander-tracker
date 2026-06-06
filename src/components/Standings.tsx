@@ -1,6 +1,7 @@
 import { useTournament } from '../context/TournamentContext';
-import { canFormValidGroups } from '../utils/grouping';
+import { canFormValidGroups, computeGroupSizes } from '../utils/grouping';
 import { calculateStandings } from '../utils/scoring';
+import type { TablePreference } from '../types';
 
 interface Props {
   viewingRoundIndex: number;
@@ -17,6 +18,13 @@ export default function Standings({ viewingRoundIndex, setViewingRoundIndex }: P
   const standings = calculateStandings(completedRounds, state.players);
 
   const activeCount = state.players.filter(p => p.active).length;
+
+  // The layout is "ambiguous" (5+5 vs 4+3+3) only for remainder 2 with >= 2 full tables.
+  const isAmbiguousLayout = activeCount % 4 === 2 && Math.floor(activeCount / 4) >= 2;
+  const layoutOptions: { value: TablePreference; label: string; sizes: number[] }[] = [
+    { value: 'balanced', label: 'Balanced', sizes: computeGroupSizes(activeCount, 'balanced') },
+    { value: 'preferLarger', label: 'Bigger pods', sizes: computeGroupSizes(activeCount, 'preferLarger') },
+  ];
 
   const getPlayerActive = (playerId: string) =>
     state.players.find(p => p.id === playerId)?.active ?? true;
@@ -46,6 +54,35 @@ export default function Standings({ viewingRoundIndex, setViewingRoundIndex }: P
   return (
     <aside className="standings-sidebar">
       <h3>Standings</h3>
+
+      {isPlaying && isAmbiguousLayout && (
+        <div className="standings-layout">
+          <span className="standings-layout-title">
+            {activeCount} active players — table layout
+          </span>
+          <div className="table-layout-options compact">
+            {layoutOptions.map(opt => (
+              <button
+                key={opt.value}
+                type="button"
+                className={`table-layout-option ${state.tablePreference === opt.value ? 'active' : ''}`}
+                onClick={() => dispatch({ type: 'SET_TABLE_PREFERENCE', preference: opt.value })}
+                aria-pressed={state.tablePreference === opt.value}
+              >
+                <span className="table-layout-label">{opt.label}</span>
+                <span className="pod-chips">
+                  {opt.sizes.map((size, i) => (
+                    <span key={i} className="pod-chip">{size}</span>
+                  ))}
+                </span>
+              </button>
+            ))}
+          </div>
+          <span className="standings-layout-hint">
+            Applies to the next round{isViewingPastRound ? ' / regeneration' : ''}.
+          </span>
+        </div>
+      )}
       {standings.length === 0 ? (
         <p className="standings-empty">No rounds completed yet.</p>
       ) : (

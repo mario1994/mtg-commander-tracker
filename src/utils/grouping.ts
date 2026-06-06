@@ -1,4 +1,4 @@
-import type { GameTable, StandingEntry } from '../types';
+import type { GameTable, StandingEntry, TablePreference } from '../types';
 
 function shuffle<T>(array: T[]): T[] {
   const arr = [...array];
@@ -9,9 +9,18 @@ function shuffle<T>(array: T[]): T[] {
   return arr;
 }
 
-export function computeGroupSizes(playerCount: number): number[] {
+export function computeGroupSizes(
+  playerCount: number,
+  preference: TablePreference = 'balanced'
+): number[] {
   const k = Math.floor(playerCount / 4);
   const remainder = playerCount % 4;
+
+  // Prefer fewer, larger pods: swap one 4 + two 3s (10 seats) for two 5s.
+  // Only valid when there is a 4 to give up (k >= 2), e.g. 10 -> [5,5], 14 -> [4,5,5].
+  if (preference === 'preferLarger' && remainder === 2 && k >= 2) {
+    return [...Array(k - 2).fill(4), 5, 5];
+  }
 
   switch (remainder) {
     case 0:
@@ -37,7 +46,8 @@ export function canFormValidGroups(count: number): boolean {
 export function createGroups(
   playerIds: string[],
   mode: 'random' | 'swiss',
-  standings?: StandingEntry[]
+  standings?: StandingEntry[],
+  preference: TablePreference = 'balanced'
 ): GameTable[] {
   let ordered: string[];
 
@@ -59,7 +69,7 @@ export function createGroups(
     ordered = sortedKeys.flatMap(key => shuffle(pointGroups.get(key)!));
   }
 
-  const sizes = computeGroupSizes(ordered.length);
+  const sizes = computeGroupSizes(ordered.length, preference);
   const tables: GameTable[] = [];
   let index = 0;
 

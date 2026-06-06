@@ -10,6 +10,7 @@ const initialState: TournamentState = {
   totalRounds: 3,
   currentRound: 0,
   rounds: [],
+  tablePreference: 'balanced',
 };
 
 function reducer(state: TournamentState, action: TournamentAction): TournamentState {
@@ -35,6 +36,9 @@ function reducer(state: TournamentState, action: TournamentAction): TournamentSt
     case 'SET_ROUNDS':
       return { ...state, totalRounds: action.totalRounds };
 
+    case 'SET_TABLE_PREFERENCE':
+      return { ...state, tablePreference: action.preference };
+
     case 'TOGGLE_PLAYER_ACTIVE': {
       const player = state.players.find(p => p.id === action.playerId);
       if (!player) return state;
@@ -56,7 +60,7 @@ function reducer(state: TournamentState, action: TournamentAction): TournamentSt
         const standingsForNext = calculateStandings(completedKept, newPlayers);
         const activePlayerIds = newPlayers.filter(p => p.active).map(p => p.id);
         const nextRoundNum = ri + 2; // rounds are 1-based
-        const newTables = createGroups(activePlayerIds, 'swiss', standingsForNext);
+        const newTables = createGroups(activePlayerIds, 'swiss', standingsForNext, state.tablePreference);
         const nextRound = { roundNumber: nextRoundNum, tables: newTables, completed: false };
         return {
           ...state,
@@ -71,7 +75,7 @@ function reducer(state: TournamentState, action: TournamentAction): TournamentSt
 
     case 'START_TOURNAMENT': {
       const playerIds = state.players.filter(p => p.active).map(p => p.id);
-      const tables = createGroups(playerIds, 'random');
+      const tables = createGroups(playerIds, 'random', undefined, state.tablePreference);
       return {
         ...state,
         phase: 'playing',
@@ -108,7 +112,7 @@ function reducer(state: TournamentState, action: TournamentAction): TournamentSt
       const standings = calculateStandings(completedRounds, state.players);
       const playerIds = state.players.filter(p => p.active).map(p => p.id);
       const nextRoundNum = state.currentRound + 1;
-      const tables = createGroups(playerIds, 'swiss', standings);
+      const tables = createGroups(playerIds, 'swiss', standings, state.tablePreference);
 
       return {
         ...state,
@@ -149,6 +153,8 @@ export function TournamentProvider({ children }: { children: ReactNode }) {
         const parsed = JSON.parse(saved) as TournamentState;
         // Migrate old saves: default active=true for players missing the field
         parsed.players = parsed.players.map(p => ({ ...p, active: p.active ?? true }));
+        // Migrate old saves without a table preference
+        parsed.tablePreference = parsed.tablePreference ?? 'balanced';
         return parsed;
       } catch {
         return initialState;
